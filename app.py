@@ -43,7 +43,16 @@ def add_engineered_features(df):
     df = df.copy()
     df["TotalCharges"] = pd.to_numeric(df["TotalCharges"], errors="coerce")
     df["tenure_to_monthly_ratio"] = df["tenure"] / (df["MonthlyCharges"] + 1e-6)
-    df["charges_per_tenure"] = df["TotalCharges"] / (df["tenure"] + 1)
+
+    addon_cols = [
+        "OnlineSecurity",
+        "OnlineBackup",
+        "DeviceProtection",
+        "TechSupport",
+        "StreamingTV",
+        "StreamingMovies",
+    ]
+    df["num_addon_services"] = (df[addon_cols] == "Yes").sum(axis=1)
     return df
 
 
