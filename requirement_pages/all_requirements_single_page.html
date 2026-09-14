@@ -102,12 +102,12 @@
       <div class="label">3. Feature Engineering</div>
       <h2>Improve Churn Signals with New Features</h2>
       <div class="purpose"><strong>Purpose:</strong> Create stronger predictive signals that reflect customer value, tenure behavior, and churn risk patterns.</div>
-      <div class="solution"><strong>Solution:</strong> Two custom predictors are added to reflect customer value and tenure pressure: tenure_to_monthly_ratio and charges_per_tenure. The first captures whether the customer has been with the company long relative to monthly payment burden, while the second approximates the average monthly spend over the customer lifetime. These engineered variables help the model detect dissatisfied or low-loyalty customers whose service consumption pattern may make them more likely to leave. In the notebook, these engineered features are included in the numerical correlation analysis, confirming they are meaningful and not just arbitrary transformations.</div>
+      <div class="solution"><strong>Solution:</strong> Two custom predictors are added to reflect customer commitment and service engagement: tenure_to_monthly_ratio and num_addon_services. The first captures whether the customer has stayed with the company relative to their monthly payment burden, while the second counts how many add-on services the customer has subscribed to. These engineered variables help the model detect customers whose flexibility, value perception, or service breadth may make them more likely to leave. They are consistent across the notebook and the training script, ensuring the exploratory analysis and the final model use the same feature set.</div>
       <ul>
         <li>Feature 1: tenure_to_monthly_ratio = tenure / (MonthlyCharges + 1e-6)</li>
-        <li>Feature 2: charges_per_tenure = TotalCharges / (tenure + 1)</li>
-        <li>These features capture the interaction between retention duration and cost/value pressure.</li>
-        <li>They are designed to represent value-for-service tradeoffs that raw variables alone do not expose.</li>
+        <li>Feature 2: num_addon_services = count of Yes values across OnlineSecurity, OnlineBackup, DeviceProtection, TechSupport, StreamingTV, and StreamingMovies</li>
+        <li>These features capture the interaction between retention duration and engagement with value-added services.</li>
+        <li>They are designed to reflect churn risk signals that raw variables alone do not expose clearly.</li>
       </ul>
     </div>
 
