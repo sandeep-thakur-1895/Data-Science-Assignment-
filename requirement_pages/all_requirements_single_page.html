@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Customer Churn Prediction - Requirements Summary</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 32px;
+      background: #f7f9fc;
+      color: #1f2937;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .section {
+      background: white;
+      border-radius: 12px;
+      padding: 28px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      margin-bottom: 22px;
+    }
+    h1, h2 { color: #0f172a; }
+    .label {
+      display: inline-block;
+      background: #dbeafe;
+      color: #1d4ed8;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-weight: bold;
+      margin-bottom: 16px;
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .purpose, .solution {
+      border-left: 5px solid;
+      padding: 14px 18px;
+      border-radius: 8px;
+      margin-top: 16px;
+      line-height: 1.7;
+    }
+    .purpose { background: #ecfdf5; border-color: #10b981; }
+    .solution { background: #eff6ff; border-color: #3b82f6; }
+    ul { line-height: 1.9; }
+    .top-link {
+      text-align: right;
+      margin-bottom: 18px;
+    }
+    .top-link a {
+      text-decoration: none;
+      color: #2563eb;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="top-link"><a href="index.html">Back to index</a></div>
+
+    <div class="section">
+      <div class="label">Business Problem</div>
+      <h1>Customer Churn Prediction</h1>
+      <div class="purpose"><strong>Purpose:</strong> Help the telecom company identify customers likely to leave so the retention team can take action before churn happens.</div>
+      <div class="solution"><strong>Solution:</strong> This project frames churn prediction as a supervised classification task using the IBM Telco Customer Churn dataset. The workflow begins with data inspection, feature cleaning, target preparation, and preprocessing, then moves into feature analysis, model training, and evaluation. The final objective is to predict whether a customer is likely to churn so the retention team can intervene early.</div>
+      <ul>
+        <li>Target variable: Churn (Yes / No)</li>
+        <li>Goal: predict churn risk with a business-focused model that supports retention decisions.</li>
+        <li>Expected outcome: a complete, reproducible churn prediction pipeline using data preparation, EDA, modeling, evaluation, and API deployment.</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <div class="label">1. Data Understanding & Preparation</div>
+      <h2>Data Review and Preprocessing</h2>
+      <div class="purpose"><strong>Purpose:</strong> Understand the churn dataset, identify data quality issues, and prepare it for a reliable machine learning pipeline.</div>
+      <div class="solution"><strong>Solution:</strong> The dataset is first examined for schema issues using pandas dtype checks, null analysis, duplicate detection, and column categorization. Raw fields like TotalCharges are converted to numeric values, the target is mapped to binary labels (Yes=1, No=0), and a preprocessing strategy is created for mixed data types. Categorical variables are handled through one-hot encoding while numerical columns are preserved for model input. The final split is performed with train_test_split(..., test_size=0.3, random_state=42, stratify=y) to maintain class balance between training and testing data. The notebook also confirms that the target is imbalanced, with churn represented as a minority class, which is why F1 and recall are prioritized later in evaluation.</div>
+      <ul>
+        <li>Train/test split: 4930 train rows and 2113 test rows, with churn rate ~0.265 in both sets.</li>
+        <li>Important raw-data issue found: TotalCharges was stored as a string and was converted to numeric.</li>
+        <li>CustomerID was excluded from model features because it is a unique identifier, not a behavioral predictor.</li>
+        <li>Preprocessing pipeline was designed to prevent leakage by fitting only on the training data.</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <div class="label">2. Exploratory Data Analysis</div>
+      <h2>Customer Behavior and Churn Drivers</h2>
+      <div class="purpose"><strong>Purpose:</strong> Discover which customer patterns are linked to churn and translate them into business insight for retention strategy.</div>
+      <div class="solution"><strong>Solution:</strong> EDA is implemented with matplotlib and seaborn to analyze churn behavior across the customer base. Visuals include churn-rate distribution, contract type breakdown, internet-service composition, customer-service comparisons, and key numerical relationships such as tenure and monthly charges. The actual notebook findings show that the customer base is dominated by month-to-month contracts, and this segment also has the highest churn risk; fiber optic users show a notably higher churn rate than other internet-service groups; and churners tend to have shorter tenure and higher monthly charges than non-churners. These observations were translated directly into business actions such as contract upgrade offers, value-focused retention campaigns, and service-quality interventions.</div>
+      <ul>
+        <li>Key notebook insight: month-to-month contract customers are the highest-risk segment.</li>
+        <li>Key notebook insight: fiber optic service is associated with higher churn than other internet-service options.</li>
+        <li>Key notebook insight: churners are usually newer customers and pay more per month than non-churners.</li>
+        <li>Additional patterns reviewed: payment-method distribution, add-on service adoption, and correlation among tenure, charges, and churn-related features.</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <div class="label">3. Feature Engineering</div>
+      <h2>Improve Churn Signals with New Features</h2>
+      <div class="purpose"><strong>Purpose:</strong> Create stronger predictive signals that reflect customer value, tenure behavior, and churn risk patterns.</div>
+      <div class="solution"><strong>Solution:</strong> Two custom predictors are added to reflect customer value and tenure pressure: tenure_to_monthly_ratio and charges_per_tenure. The first captures whether the customer has been with the company long relative to monthly payment burden, while the second approximates the average monthly spend over the customer lifetime. These engineered variables help the model detect dissatisfied or low-loyalty customers whose service consumption pattern may make them more likely to leave. In the notebook, these engineered features are included in the numerical correlation analysis, confirming they are meaningful and not just arbitrary transformations.</div>
+      <ul>
+        <li>Feature 1: tenure_to_monthly_ratio = tenure / (MonthlyCharges + 1e-6)</li>
+        <li>Feature 2: charges_per_tenure = TotalCharges / (tenure + 1)</li>
+        <li>These features capture the interaction between retention duration and cost/value pressure.</li>
+        <li>They are designed to represent value-for-service tradeoffs that raw variables alone do not expose.</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <div class="label">4. Model Development</div>
+      <h2>Decision Tree Modeling</h2>
+      <div class="purpose"><strong>Purpose:</strong> Train a decision-tree model that predicts churn while balancing interpretability and performance.</div>
+      <div class="solution"><strong>Solution:</strong> A preprocessing pipeline is built using ColumnTransformer with median imputation for numeric columns and most-frequent imputation + one-hot encoding for categorical columns, followed by a DecisionTreeClassifier. Two tree variants are trained and compared: (1) Tree_A_Interpretable, a shallow fixed model with max_depth=4 and min_samples_leaf=50, and (2) Tree_B_Tuned, optimized by GridSearchCV over criterion in {gini, entropy}, max_depth in [3, 4, 5, 6, 8, 10], min_samples_leaf in [5, 10, 20, 30], and class_weight in [None, balanced]. The best tuned configuration was {'classifier__class_weight': 'balanced', 'classifier__criterion': 'entropy', 'classifier__max_depth': 3, 'classifier__min_samples_leaf': 5}. The final model is chosen using F1 as the primary metric, with recall as the tie-breaker because churn is imbalanced and missed churners are the costlier error.</div>
+      <ul>
+        <li>Tree_A_Interpretable: Accuracy 0.7818, Precision 0.6366, Recall 0.4153, F1 0.5027</li>
+        <li>Tree_B_Tuned: Accuracy 0.7459, Precision 0.5142, Recall 0.7772, F1 0.6189</li>
+        <li>Selected model: Tree_B_Tuned, because it achieved the highest F1 score.</li>
+        <li>Bonus benchmark included: Logistic Regression (balanced) reached Accuracy 0.7449, Precision 0.5126, Recall 0.7968, F1 0.6239, but the assignment requires the final model to remain a Decision Tree.</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <div class="label">5. Model Evaluation</div>
+      <h2>Performance and Business Interpretation</h2>
+      <div class="purpose"><strong>Purpose:</strong> Measure whether the model performs well enough to support retention decisions and understand trade-offs between missed churners and false alarms.</div>
+      <div class="solution"><strong>Solution:</strong> The selected model is evaluated using accuracy, precision, recall, F1 score, and a confusion matrix on the 30% holdout test set. The actual results for the final selected model were: Accuracy = 0.7459, Precision = 0.5142, Recall = 0.7772, F1 = 0.6189, with confusion matrix [[1140, 412], [125, 436]], where the first row is actual non-churn and the second is actual churn. This assessment checks both overall predictive strength and business usefulness. Because churn is a minority class, F1 is treated as the primary optimization metric, while recall is emphasized for practical retention targeting since false negatives (missed churners) are more costly than unnecessary outreach. The baseline tree achieved F1 = 0.5027, confirming the tuned model improved the ability to identify likely churners.</div>
+      <ul>
+        <li>Final selected model: Tree_B_Tuned</li>
+        <li>Final metrics: Accuracy 0.7459, Precision 0.5142, Recall 0.7772, F1 0.6189</li>
+        <li>Business interpretation: higher recall is preferred because the cost of missing a churner is higher than contacting a customer who does not churn.</li>
+        <li>Bonus benchmark: Logistic Regression (balanced) achieved F1 0.6239, which is slightly higher than the tuned tree but is not used as the final model because the assignment requires a Decision Tree as the final model.</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <div class="label">6. Model Interpretation</div>
+      <h2>What Drives the Churn Prediction?</h2>
+      <div class="purpose"><strong>Purpose:</strong> Explain the model’s decisions so stakeholders can understand which customer signals are driving churn risk.</div>
+      <div class="solution"><strong>Solution:</strong> Model interpretation is done by extracting feature_importances_ from the final Tree_B_Tuned model and ranking the transformed inputs by contribution. The leading predictors are mapped back to original features (including one-hot encoded categories) to identify which signals drive churn predictions most strongly. In this project, the most influential factors align with churn risk indicators such as contract type, tenure, monthly charges, and internet service. The notebook specifically identifies month-to-month contracts, shorter tenure, and fiber-optic service as recurring churn risk patterns, and the final tree reinforces this by using these variables as primary split points. This gives the business a transparent explanation for why a customer is flagged as churn-prone.</div>
+      <ul>
+        <li>Feature importance is extracted from the final tree using model.named_steps['classifier'].feature_importances_.</li>
+        <li>Top drivers: contract type, tenure, monthly charges, and internet service quality/value pressure.</li>
+        <li>Notebook interpretation confirms that retention risk clusters around short-term contracts, high monthly cost, and fiber-based plans.</li>
+        <li>Decision-tree visualization is used to explain the split logic in business terms.</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <div class="label">7. Model Saving & API</div>
+      <h2>Reusable Model and Prediction API</h2>
+      <div class="purpose"><strong>Purpose:</strong> Save the trained pipeline and expose it through an API so new customer data can be scored in real time.</div>
+      <div class="solution"><strong>Solution:</strong> The trained preprocessing pipeline and final Decision Tree model are saved as a serialized object using pickle so the same transformations can be reused on future data. A REST API is implemented with FastAPI/Flask to expose a POST /predict endpoint. The endpoint accepts a customer record in JSON format, converts it into the same feature schema used during training, applies the saved preprocessing steps, runs the model, and returns both the prediction label (Yes/No) and churn probability.</div>
+      <ul>
+        <li>Save final model/pipeline to disk.</li>
+        <li>Use Flask or FastAPI for API deployment.</li>
+        <li>Accept customer JSON.</li>
+        <li>Apply preprocessing before prediction.</li>
+        <li>Return prediction and churn probability.</li>
+        <li>Handle invalid input cleanly.</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <div class="label">Bonus / Advanced Work</div>
+      <h2>Additional value beyond the core assignment</h2>
+      <div class="purpose"><strong>Purpose:</strong> Demonstrate stronger modeling practice by improving model tuning, accounting for class imbalance, and benchmarking against another algorithm.</div>
+      <div class="solution"><strong>Solution:</strong> This project includes advanced work that is explicitly useful for churn prediction. Hyperparameter tuning was implemented using GridSearchCV for the Decision Tree, testing criterion, max_depth, min_samples_leaf, and class_weight to optimize F1 rather than raw accuracy. Class imbalance was handled by selecting F1 as the primary optimization metric and using balanced class weights in the tuned model, because churn is a minority class and accuracy would otherwise be misleading. In addition, a Logistic Regression benchmark was included as a bonus comparison to measure whether the tuned tree remained the best decision for the assignment requirement. The final model remains Tree_B_Tuned because the assignment requires the final production model to be a Decision Tree, while the logistic model served as a supplemental performance benchmark.</div>
+      <ul>
+        <li>Hyperparameter tuning: GridSearchCV over depth, leaf size, criterion, and class weighting.</li>
+        <li>Class imbalance handling: F1 priority + recall tie-break + balanced class_weight in tuned tree.</li>
+        <li>Additional model comparison: Logistic Regression balanced benchmark included.</li>
+        <li>Actual project result: Tree_B_Tuned selected as final Decision Tree model, with F1 = 0.6189.</li>
+      </ul>
+    </div>
+
+  </div>
+</body>
+</html>
