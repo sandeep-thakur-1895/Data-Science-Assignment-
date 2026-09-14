@@ -54,8 +54,7 @@ def add_engineered_features(df):
        Why useful: measures "months stayed per dollar paid." A customer
        with low tenure but high charges (low ratio) is a classic early-churn
        profile — this single number captures that pattern better than
-       tenure or MonthlyCharges alone. Validated: it's the 3rd most
-       important feature in the trained tree (see feature_importances_).
+       tenure or MonthlyCharges alone. Validated:
 
     2. num_addon_services = count of add-ons subscribed (OnlineSecurity,
        OnlineBackup, DeviceProtection, TechSupport, StreamingTV,
