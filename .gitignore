@@ -1,0 +1,24 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Editor/temp files
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Test artifacts
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
